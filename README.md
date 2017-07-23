@@ -1,0 +1,2 @@
+# aMazing
+Simple maze generator
