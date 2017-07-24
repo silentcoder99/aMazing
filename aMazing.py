@@ -1,19 +1,28 @@
 from min_heap import MinHeap
-from random import random
-from Queue import PriorityQueue
+from queue import PriorityQueue
+import random
+import sys
 
 edgeWeights = {}
 
 # size of grid
-gridSize = 25
+if(len(sys.argv) == 2):
+        gridWidth = sys.argv[1]
+        gridHeight = sys.argv[1]
+elif(len(sys.argv) == 3):
+        gridWidth = sys.argv[1]
+        gridHeight = sys.argv[2]
+else:
+        gridWidth = 90
+        gridHeight = 60
 
 # Generate random edge weights
-for i in range(0,gridSize):
-	for j in range(0,gridSize):
-		if i != gridSize - 1:
-			edgeWeights[frozenset({(i, j), (i + 1, j)})] = random()
-		if j != gridSize - 1:
-			edgeWeights[frozenset({(i, j), (i, j + 1)})] = random()
+for i in range(0,gridWidth):
+	for j in range(0,gridHeight):
+		if i != gridWidth - 1:
+			edgeWeights[frozenset({(i, j), (i + 1, j)})] = random.uniform(0,1)
+		if j != gridHeight - 1:
+			edgeWeights[frozenset({(i, j), (i, j + 1)})] = random.uniform(0,1)
 
 treeNodes = set()
 treeEdges = set()
@@ -23,26 +32,27 @@ def getNeighbors(point):
 	nodes = set()
 	x = point[0]
 	y = point[1]
-	if x > 1:
+	if x > 0:
 		nodes.add((x-1, y))
-	if y > 1:
+	if y > 0:
 		nodes.add((x, y-1))
-	if x < gridSize - 1:
+	if x < gridWidth - 1:
 		nodes.add((x + 1, y))
-	if y < gridSize - 1:
+	if y < gridHeight - 1:
 		nodes.add((x, y+1))
 	return nodes
 
+startNode = (0,0)
 # Add our first node to the tree
-treeNodes.add((0,0))
+treeNodes.add(startNode)
 
 # Discover neighbors from that node
-neighbors = getNeighbors((0,0))
+rootNeighbors = getNeighbors(startNode)
 
 # Add those neighbors
-for neighbor in neighbors:
-	edge = frozenset({(0,0), neighbor})
-	openEdges.put((edgeWeights[edge],edge))
+for rootNeighbor in rootNeighbors:
+	rootEdge = frozenset({startNode, rootNeighbor})
+	openEdges.put((edgeWeights[rootEdge],rootEdge))
 
 # Do it for the rest
 while not openEdges.empty():
@@ -61,33 +71,35 @@ while not openEdges.empty():
 
 			for neighbor in neighbors:
 				if not neighbor in treeNodes:
-					edge = frozenset({endpointNode, neighbor})
-					openEdges.put((edgeWeights[edge], edge))
+					newEdge = frozenset({endpointNode, neighbor})
+					openEdges.put((edgeWeights[newEdge], newEdge))
 
+
+block = "\u2588"
 # create header
 header = ""
-for i in range(0, gridSize * 2 - 1):
-	header += "#"
+for i in range(0, gridWidth * 2 + 1):
+	header += block
 
 # Print the maze
-print header
-for j in range(1,gridSize):
+print(header)
+for j in range(0,gridHeight):
 
 	# Left borders
-	firstRow = "#"
-	secondRow = "#"
-	for i in range(1,gridSize):
+	firstRow = block
+	secondRow = block
+	for i in range(0,gridWidth):
 
 		# Print right edges
 		if frozenset({(i, j),(i+1,j)}) in treeEdges:
 			firstRow += "  "
 		else:
-			firstRow += " #"
-		# print left edges
+			firstRow += " " + block
+		# print bottom edges
 		if frozenset({(i, j),(i,j+1)}) in treeEdges:
-			secondRow += " #"
+			secondRow += " " + block
 		else:
-			secondRow += "##"
+			secondRow += block + block
 	# print constructed rows
-	print firstRow
-	print secondRow
+	print (firstRow)
+	print (secondRow)
