@@ -5,7 +5,7 @@ from Queue import PriorityQueue
 edgeWeights = {}
 
 # size of grid
-gridSize = 8
+gridSize = 25
 
 # Generate random edge weights
 for i in range(0,gridSize):
@@ -48,15 +48,14 @@ for neighbor in neighbors:
 while not openEdges.empty():
 	edge = openEdges.get()
 
-	# add edge to treeEdges
-	treeEdges.add(edge[1])
-
 	# Check the two endpoints for new nodes
 	for endpointNode in edge[1]:
 		if not endpointNode in treeNodes:
+			# add edge to treeEdges
+			treeEdges.add(edge[1])
 			# Add the new node to the tree
 			treeNodes.add(endpointNode)
-			
+
 			# explore the new node for edges
 			neighbors = getNeighbors(endpointNode)
 
@@ -65,5 +64,30 @@ while not openEdges.empty():
 					edge = frozenset({endpointNode, neighbor})
 					openEdges.put((edgeWeights[edge], edge))
 
-print len(treeNodes)
-print treeEdges
+# create header
+header = ""
+for i in range(0, gridSize * 2 - 1):
+	header += "#"
+
+# Print the maze
+print header
+for j in range(1,gridSize):
+
+	# Left borders
+	firstRow = "#"
+	secondRow = "#"
+	for i in range(1,gridSize):
+
+		# Print right edges
+		if frozenset({(i, j),(i+1,j)}) in treeEdges:
+			firstRow += "  "
+		else:
+			firstRow += " #"
+		# print left edges
+		if frozenset({(i, j),(i,j+1)}) in treeEdges:
+			secondRow += " #"
+		else:
+			secondRow += "##"
+	# print constructed rows
+	print firstRow
+	print secondRow
