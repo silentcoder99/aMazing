@@ -5,6 +5,7 @@ edgeWeights = {}
 # size of grid
 gridSize = 8
 
+# Generate random edge weights
 for i in range(0,gridSize):
 	for j in range(0,gridSize):
 		if i != gridSize - 1:
@@ -12,4 +13,5 @@ for i in range(0,gridSize):
 		if j != gridSize - 1:
 			edgeWeights[frozenset({(i, j), (i, j + 1)})] = random()
 
+# PRint them off
 print edgeWeights
