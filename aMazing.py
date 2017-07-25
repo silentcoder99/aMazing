@@ -1,6 +1,6 @@
-from min_heap import MinHeap
 from random import random
-from Queue import PriorityQueue
+from queue import PriorityQueue
+import render
 
 edgeWeights = {}
 
@@ -23,9 +23,9 @@ def getNeighbors(point):
 	nodes = set()
 	x = point[0]
 	y = point[1]
-	if x > 1:
+	if x > 0:
 		nodes.add((x-1, y))
-	if y > 1:
+	if y > 0:
 		nodes.add((x, y-1))
 	if x < gridSize - 1:
 		nodes.add((x + 1, y))
@@ -64,30 +64,48 @@ while not openEdges.empty():
 					edge = frozenset({endpointNode, neighbor})
 					openEdges.put((edgeWeights[edge], edge))
 
-# create header
-header = ""
-for i in range(0, gridSize * 2 - 1):
-	header += "#"
+#holds data to be written to bitmap
+pixelData = []
 
-# Print the maze
-print header
-for j in range(1,gridSize):
+#add upper edge
+for i in range(0, gridSize * 2 + 1):
+		pixelData.append(0)
 
-	# Left borders
-	firstRow = "#"
-	secondRow = "#"
-	for i in range(1,gridSize):
+for j in range(0,gridSize):
 
-		# Print right edges
-		if frozenset({(i, j),(i+1,j)}) in treeEdges:
-			firstRow += "  "
+	#Left border
+	if j == 0:
+		pixelData.append(1)
+	else:
+		pixelData.append(0)
+
+	#right edges
+	for i in range(0,gridSize):
+
+		#add pixel for each node
+		pixelData.append(1)
+
+		#add pixel for each right edge in treeEdges
+		if j == i == gridSize - 1:
+			pixelData.append(1)
 		else:
-			firstRow += " #"
-		# print left edges
+			if frozenset({(i, j),(i+1,j)}) in treeEdges:
+				pixelData.append(1)
+			else:
+				pixelData.append(0)
+
+	# Left border
+	pixelData.append(0)
+
+	#add pixel for each down edge in treeEdges
+	for i in range(0, gridSize):
+
 		if frozenset({(i, j),(i,j+1)}) in treeEdges:
-			secondRow += " #"
+			pixelData.append(1)
 		else:
-			secondRow += "##"
-	# print constructed rows
-	print firstRow
-	print secondRow
+			pixelData.append(0)
+
+		pixelData.append(0)
+
+print(len(pixelData))
+render.show_maze(pixelData, gridSize * 2 + 1, 1)
