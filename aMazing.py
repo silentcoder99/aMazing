@@ -7,6 +7,9 @@ edgeWeights = {}
 # size of grid
 gridSize = 25
 
+#image scale (1 - 1:1 pixel ratio)
+scale = 8
+
 # Generate random edge weights
 for i in range(0,gridSize):
 	for j in range(0,gridSize):
@@ -108,4 +111,4 @@ for j in range(0,gridSize):
 		pixelData.append(0)
 
 print(len(pixelData))
-render.show_maze(pixelData, gridSize * 2 + 1, 1)
+render.show_maze(pixelData, gridSize * 2 + 1, scale)
