@@ -7,3 +7,4 @@ def show_maze(pixelData, size, scale):
     #add pixels scaled to fix desired size
     im.putdata(pixelData, scale)
     im.show()
+    im.save("maze.png")
