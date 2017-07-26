@@ -1,7 +1,8 @@
 from min_heap import MinHeap
 from queue import PriorityQueue
-import random
 import sys
+from random import random
+import render
 
 edgeWeights = {}
 
@@ -14,15 +15,18 @@ elif(len(sys.argv) == 3):
         gridHeight = sys.argv[2]
 else:
         gridWidth = 90
-        gridHeight = 60
+        gridHeight = 90
+
+#image scale (1 - 1:1 pixel ratio)
+scale = 8
 
 # Generate random edge weights
 for i in range(0,gridWidth):
 	for j in range(0,gridHeight):
 		if i != gridWidth - 1:
-			edgeWeights[frozenset({(i, j), (i + 1, j)})] = random.uniform(0,1)
+			edgeWeights[frozenset({(i, j), (i + 1, j)})] = random()
 		if j != gridHeight - 1:
-			edgeWeights[frozenset({(i, j), (i, j + 1)})] = random.uniform(0,1)
+			edgeWeights[frozenset({(i, j), (i, j + 1)})] = random()
 
 treeNodes = set()
 treeEdges = set()
@@ -74,32 +78,48 @@ while not openEdges.empty():
 					newEdge = frozenset({endpointNode, neighbor})
 					openEdges.put((edgeWeights[newEdge], newEdge))
 
+#holds data to be written to bitmap
+pixelData = []
 
-block = "\u2588"
-# create header
-header = ""
+#add upper edge
 for i in range(0, gridWidth * 2 + 1):
-	header += block
+		pixelData.append(0)
 
-# Print the maze
-print(header)
 for j in range(0,gridHeight):
 
-	# Left borders
-	firstRow = block
-	secondRow = block
+	#Left border
+	if j == 0:
+		pixelData.append(1)
+	else:
+		pixelData.append(0)
+
+	#right edges
 	for i in range(0,gridWidth):
 
-		# Print right edges
-		if frozenset({(i, j),(i+1,j)}) in treeEdges:
-			firstRow += "  "
+		#add pixel for each node
+		pixelData.append(1)
+
+		#add pixel for each right edge in treeEdges
+		if j == i == gridWidth - 1:
+			pixelData.append(1)
 		else:
-			firstRow += " " + block
-		# print bottom edges
+			if frozenset({(i, j),(i+1,j)}) in treeEdges:
+				pixelData.append(1)
+			else:
+				pixelData.append(0)
+
+	# Left border
+	pixelData.append(0)
+
+	#add pixel for each down edge in treeEdges
+	for i in range(0, gridWidth):
+
 		if frozenset({(i, j),(i,j+1)}) in treeEdges:
-			secondRow += " " + block
+			pixelData.append(1)
 		else:
-			secondRow += block + block
-	# print constructed rows
-	print (firstRow)
-	print (secondRow)
+			pixelData.append(0)
+
+		pixelData.append(0)
+
+print(len(pixelData))
+render.show_maze(pixelData, gridWidth * 2 + 1, scale)
