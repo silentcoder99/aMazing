@@ -7,6 +7,10 @@ from PIL import Image
 
 edgeWeights = {}
 
+im = Image.open("weight.jpg")
+width, height = im.size
+grayscale = im.convert("L")
+
 # size of grid
 if(len(sys.argv) == 2):
         gridWidth = sys.argv[1]
@@ -15,15 +19,11 @@ elif(len(sys.argv) == 3):
         gridWidth = sys.argv[1]
         gridHeight = sys.argv[2]
 else:
-        gridWidth = 300
-        gridHeight = 300
+        gridWidth = int((width - 1) / 2)
+        gridHeight = int((height - 1) / 2)
 
 #image scale (1 - 1:1 pixel ratio)
 scale = 8
-
-im = Image.open("weight.jpg")
-width, height = im.size
-grayscale = im.convert("L")
 
 def getWeight(position):
         return grayscale.getpixel(position)
