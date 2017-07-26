@@ -109,7 +109,7 @@ for j in range(0,gridHeight):
 		pixelData.append(1)
 
 		#add pixel for each right edge in treeEdges
-		if j == i == gridWidth - 1:
+		if j == gridHeight - 1 and i == gridWidth - 1:
 			pixelData.append(1)
 		else:
 			if frozenset({(i, j),(i+1,j)}) in treeEdges:
