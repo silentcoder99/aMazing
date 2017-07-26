@@ -3,6 +3,7 @@ from queue import PriorityQueue
 import sys
 from random import random
 import render
+from PIL import Image
 
 edgeWeights = {}
 
@@ -14,19 +15,27 @@ elif(len(sys.argv) == 3):
         gridWidth = sys.argv[1]
         gridHeight = sys.argv[2]
 else:
-        gridWidth = 90
-        gridHeight = 90
+        gridWidth = 300
+        gridHeight = 300
 
 #image scale (1 - 1:1 pixel ratio)
 scale = 8
+
+im = Image.open("weight.jpg")
+width, height = im.size
+grayscale = im.convert("L")
+
+def getWeight(position):
+        return grayscale.getpixel(position)
+
 
 # Generate random edge weights
 for i in range(0,gridWidth):
 	for j in range(0,gridHeight):
 		if i != gridWidth - 1:
-			edgeWeights[frozenset({(i, j), (i + 1, j)})] = random()
+			edgeWeights[frozenset({(i, j), (i + 1, j)})] = getWeight((2 * i + 1, 2 * j))
 		if j != gridHeight - 1:
-			edgeWeights[frozenset({(i, j), (i, j + 1)})] = random()
+			edgeWeights[frozenset({(i, j), (i, j + 1)})] = getWeight((2 * i, 2 * j + 1))
 
 treeNodes = set()
 treeEdges = set()
