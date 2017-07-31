@@ -1,6 +1,9 @@
 from PIL import Image
 import os
 
+#---Video Output Options---
+dBuffer = 5 #Number of digits used for frame numbering
+
 #absolute path of script
 path = os.path.dirname(os.path.abspath(__file__))
 
@@ -32,7 +35,7 @@ class GifBuilder:
             os.makedirs(path + "\\frames")
 
         #save initial frame
-        im.save(path + "\\frames\\frame" + str(self.frameCount) + ".png")
+        im.save(path + "\\frames\\frame" + str(self.frameCount).zfill(dBuffer) + ".png")
         self.frameCount += 1
 
     def add_frame(self, x, y):
@@ -41,20 +44,10 @@ class GifBuilder:
         newFrame.putpixel((x, y), 1)
         self.lastFrame = newFrame
         newFrame = newFrame.resize((self.sizeX * self.scale, self.sizeY * self.scale))
-        newFrame.save(path + "\\frames\\frame" + str(self.frameCount) + ".png")
+        newFrame.save(path + "\\frames\\frame" + str(self.frameCount).zfill(dBuffer) + ".png")
 
         self.frameCount += 1
 
     def build_gif(self):
-        #resize all frames based on scale
-        try:
-            for i in range(0, len(self.frames)):
-                self.frames[i] = self.frames[i].resize((self.sizeX * self.scale, self.sizeY * self.scale))
-        except ValueError:
-            print("Bad Image Mode:", self.frames[i].mode)
-            self.frames[i].show()
-            raise
-
-        #create gif from frames
-        with Image.open("maze.gif") as im:
-            im.save("maze.gif", save_all = True, append_images = self.frames, duration = delay)
+        #TODO: Implement ffmpeg automation
+        pass
