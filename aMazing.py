@@ -3,7 +3,7 @@ from queue import PriorityQueue
 import sys
 from random import random
 import render
-from render import GifBuilder
+from render import VideoBuilder
 from PIL import Image
 import math
 
@@ -25,16 +25,13 @@ else:
         # gridHeight = int((height - 1) / 2)
 
         #big mazes take a long time to generate frames
-        gridWidth = 50
-        gridHeight = 50
-
-#image scale (1 - 1:1 pixel ratio)
-scale = 8
+        gridWidth = 100
+        gridHeight = 100
 
 #create instance of GifBuilder
-gif = GifBuilder(gridWidth * 2 + 1, gridHeight * 2 + 1, scale)
+vid = VideoBuilder(gridWidth * 2 + 1, gridHeight * 2 + 1)
 #add entrance to gif
-gif.add_frame(0, 1)
+vid.add_frame(0, 1)
 
 def getWeight(position):
         return grayscale.getpixel(position)
@@ -69,7 +66,7 @@ def getNeighbors(point):
 startNode = (0,0)
 # Add our first node to the tree
 treeNodes.add(startNode)
-gif.add_frame(1, 1)
+vid.add_frame(1, 1)
 
 # Discover neighbors from that node
 rootNeighbors = getNeighbors(startNode)
@@ -96,11 +93,11 @@ while not openEdges.empty():
             # Add the new node to the tree
             treeNodes.add(endpointNode)
 
-            #add gif frames
+            #add video frames
             #average origin and new node co-ords to find edge position
-            gif.add_frame(originNode[0] + endpointNode[0] + 1, originNode[1] + endpointNode[1] + 1)
+            vid.add_frame(originNode[0] + endpointNode[0] + 1, originNode[1] + endpointNode[1] + 1)
             #add new node
-            gif.add_frame(endpointNode[0] * 2 + 1, endpointNode[1] * 2 + 1)
+            vid.add_frame(endpointNode[0] * 2 + 1, endpointNode[1] * 2 + 1)
 
             #print progress percent
             print(len(treeNodes)/(gridWidth * gridHeight))
@@ -114,7 +111,7 @@ while not openEdges.empty():
                     openEdges.put((edgeWeights[newEdge], newEdge))
 
 #add exit to movie
-gif.add_frame(gridWidth * 2, gridHeight * 2 - 1)
+vid.add_frame(gridWidth * 2, gridHeight * 2 - 1)
 
 #---Generate Pixel Data---
 
@@ -162,5 +159,5 @@ for j in range(0,gridHeight):
         pixelData.append(0)
 
 print(len(pixelData))
-render.show_maze(pixelData, gridWidth * 2 + 1, gridHeight * 2 + 1, scale)
-#gif.build_gif()
+render.show_maze(pixelData, gridWidth * 2 + 1, gridHeight * 2 + 1)
+#vid.build_video()

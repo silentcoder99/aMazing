@@ -1,13 +1,15 @@
+from subprocess import Popen, PIPE
 from PIL import Image
-import os
+
+#---Image Output Options---
+imageScale = 8
 
 #---Video Output Options---
-dBuffer = 5 #Number of digits used for frame numbering
+videoScale = 2 #scaling for individual frames
+fps = 120
+qScale = 5 #quality of output video
 
-#absolute path of script
-path = os.path.dirname(os.path.abspath(__file__))
-
-def show_maze(pixelData, sizeX, sizeY, scale):
+def show_maze(pixelData, sizeX, sizeY):
     #create black image
     im = Image.new("1", (sizeX, sizeY))
 
@@ -15,39 +17,33 @@ def show_maze(pixelData, sizeX, sizeY, scale):
     im.putdata(pixelData)
 
     #scale image
-    im = im.resize((sizeX * scale, sizeY * scale))
+    im = im.resize((sizeX * imageScale, sizeY * imageScale))
 
     #display and save image
     im.show()
     im.save("maze.png")
 
-class GifBuilder:
-    def __init__(self, sizeX, sizeY, scale):
-        self.frameCount = 0
+class VideoBuilder:
+    def __init__(self, sizeX, sizeY):
         self.sizeX = sizeX
         self.sizeY = sizeY
-        self.scale = scale
         self.lastFrame = Image.new("1", (self.sizeX, self.sizeY))
-        im = self.lastFrame.resize((self.sizeX * scale, self.sizeY * scale))
+        im = self.lastFrame.resize((self.sizeX * videoScale, self.sizeY * videoScale))
 
-        #create frames directory if one doesn't exist
-        if not os.path.exists(path + "\\frames"):
-            os.makedirs(path + "\\frames")
+        #create and open pipe to ffmpeg process
 
+        self.p = Popen(["ffmpeg", "-y", "-f", "image2pipe", "-vcodec", "png", "-r", str(fps), "-i", "-", "-vcodec", "libx264", "-qscale", str(qScale), "-r", str(fps), "output.mp4"], stdin = PIPE)
         #save initial frame
-        im.save(path + "\\frames\\frame" + str(self.frameCount).zfill(dBuffer) + ".png")
-        self.frameCount += 1
+        im.save(self.p.stdin, "PNG")
 
     def add_frame(self, x, y):
         #saves a copy of last frame with added pixel at (x, y)
         newFrame = self.lastFrame.copy()
         newFrame.putpixel((x, y), 1)
         self.lastFrame = newFrame
-        newFrame = newFrame.resize((self.sizeX * self.scale, self.sizeY * self.scale))
-        newFrame.save(path + "\\frames\\frame" + str(self.frameCount).zfill(dBuffer) + ".png")
+        newFrame = newFrame.resize((self.sizeX * videoScale, self.sizeY * videoScale))
+        newFrame.save(self.p.stdin, "PNG")
 
-        self.frameCount += 1
-
-    def build_gif(self):
-        #TODO: Implement ffmpeg automation
-        pass
+    def build_video(self):
+        #clean up
+        p.stdin.close()
