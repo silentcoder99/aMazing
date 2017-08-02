@@ -21,12 +21,12 @@ elif(len(sys.argv) == 3):
         gridWidth = sys.argv[1]
         gridHeight = sys.argv[2]
 else:
-        # gridWidth = int((width - 1) / 2)
-        # gridHeight = int((height - 1) / 2)
+        gridWidth = int((width - 1) / 2)
+        gridHeight = int((height - 1) / 2)
 
         #big mazes take a long time to generate frames
-        gridWidth = 100
-        gridHeight = 100
+        # gridWidth = 100
+        # gridHeight = 100
 
 #create instance of GifBuilder
 vid = VideoBuilder(gridWidth * 2 + 1, gridHeight * 2 + 1)

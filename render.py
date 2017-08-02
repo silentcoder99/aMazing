@@ -5,7 +5,7 @@ from PIL import Image
 imageScale = 8
 
 #---Video Output Options---
-videoScale = 2 #scaling for individual frames
+videoScale = 1 #scaling for individual frames
 fps = 120
 qScale = 5 #quality of output video
 
@@ -27,12 +27,18 @@ class VideoBuilder:
     def __init__(self, sizeX, sizeY):
         self.sizeX = sizeX
         self.sizeY = sizeY
+
+        #ensure frame dimensions are divisible by 2 (needed for encoding)
+        if videoScale == 1:
+            self.sizeX += 1
+            self.sizeY += 1
+
         self.lastFrame = Image.new("1", (self.sizeX, self.sizeY))
         im = self.lastFrame.resize((self.sizeX * videoScale, self.sizeY * videoScale))
 
         #create and open pipe to ffmpeg process
-
         self.p = Popen(["ffmpeg", "-y", "-f", "image2pipe", "-vcodec", "png", "-r", str(fps), "-i", "-", "-vcodec", "libx264", "-qscale", str(qScale), "-r", str(fps), "output.mp4"], stdin = PIPE)
+
         #save initial frame
         im.save(self.p.stdin, "PNG")
 
