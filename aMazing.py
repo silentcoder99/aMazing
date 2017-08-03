@@ -7,10 +7,19 @@ from render import VideoBuilder
 from PIL import Image
 import math
 
+#---Image Input Options---
+descale = 2 #reduce input image size by this factor
+
 edgeWeights = {}
 
+#load imput image
 im = Image.open("weight.jpg")
 width, height = im.size
+
+#resize Input
+im = im.resize((int(width / descale), int(height / descale)))
+width, height = im.size
+
 grayscale = im.convert("L")
 
 # size of grid
