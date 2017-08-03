@@ -158,6 +158,8 @@ for j in range(0,gridHeight):
 
         pixelData.append(0)
 
-print(len(pixelData))
+#save and display maze image
 render.show_maze(pixelData, gridWidth * 2 + 1, gridHeight * 2 + 1)
-#vid.build_video()
+
+#close ffmpeg processs
+vid.release()
