@@ -6,8 +6,11 @@ from render import VideoBuilder
 from PIL import Image
 import math
 
+#---Video Output Options---
+makeVid = True #generate output video
+
 #---Image Input Options---
-descale = 2 #reduce input image size by this factor
+descale = 1 #reduce input image size by this factor
 
 edgeWeights = {}
 
@@ -32,10 +35,11 @@ else:
         gridWidth = int((width - 1) / 2)
         gridHeight = int((height - 1) / 2)
 
-#create instance of VideoBuilder
-vid = VideoBuilder(gridWidth * 2 + 1, gridHeight * 2 + 1)
-#add entrance to gif
-vid.add_frame(0, 1)
+if makeVid:
+    #create instance of VideoBuilder
+    vid = VideoBuilder(gridWidth * 2 + 1, gridHeight * 2 + 1)
+    #add entrance to gif
+    vid.add_frame(0, 1)
 
 def getWeight(position):
         return grayscale.getpixel(position)
@@ -70,7 +74,8 @@ def getNeighbors(point):
 startNode = (0,0)
 # Add our first node to the tree
 treeNodes.add(startNode)
-vid.add_frame(1, 1)
+if makeVid:
+    vid.add_frame(1, 1)
 
 # Discover neighbors from that node
 rootNeighbors = getNeighbors(startNode)
@@ -97,11 +102,12 @@ while not openEdges.empty():
             # Add the new node to the tree
             treeNodes.add(endpointNode)
 
-            #add video frames
-            #average origin and new node co-ords to find edge position
-            vid.add_frame(originNode[0] + endpointNode[0] + 1, originNode[1] + endpointNode[1] + 1)
-            #add new node
-            vid.add_frame(endpointNode[0] * 2 + 1, endpointNode[1] * 2 + 1)
+            if makeVid:
+                #add video frames
+                #average origin and new node co-ords to find edge position
+                vid.add_frame(originNode[0] + endpointNode[0] + 1, originNode[1] + endpointNode[1] + 1)
+                #add new node
+                vid.add_frame(endpointNode[0] * 2 + 1, endpointNode[1] * 2 + 1)
 
             #print progress percent
             print(len(treeNodes)/(gridWidth * gridHeight))
@@ -114,8 +120,9 @@ while not openEdges.empty():
                     newEdge = frozenset({endpointNode, neighbor})
                     openEdges.put((edgeWeights[newEdge], newEdge))
 
-#add exit to movie
-vid.add_frame(gridWidth * 2, gridHeight * 2 - 1)
+if makeVid:
+    #add exit to movie
+    vid.add_frame(gridWidth * 2, gridHeight * 2 - 1)
 
 #---Generate Pixel Data---
 
@@ -165,5 +172,6 @@ for j in range(0,gridHeight):
 #save and display maze image
 render.show_maze(pixelData, gridWidth * 2 + 1, gridHeight * 2 + 1)
 
-#close ffmpeg processs
-vid.release()
+if makeVid:
+    #close ffmpeg processs
+    vid.release()
