@@ -1,4 +1,3 @@
-from min_heap import MinHeap
 from queue import PriorityQueue
 import sys
 from random import random
@@ -33,11 +32,7 @@ else:
         gridWidth = int((width - 1) / 2)
         gridHeight = int((height - 1) / 2)
 
-        #big mazes take a long time to generate frames
-        # gridWidth = 100
-        # gridHeight = 100
-
-#create instance of GifBuilder
+#create instance of VideoBuilder
 vid = VideoBuilder(gridWidth * 2 + 1, gridHeight * 2 + 1)
 #add entrance to gif
 vid.add_frame(0, 1)

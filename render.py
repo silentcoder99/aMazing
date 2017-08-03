@@ -2,13 +2,12 @@ from subprocess import Popen, PIPE
 from PIL import Image
 
 #---Image Output Options---
-imageScale = 8
+imageScale = 8 #scaling for output image
 
 #---Video Output Options---
 videoScale = 1 #scaling for individual frames
 fps = 120 #frame rate
 frameInterval = 4 #every nth frame to be rendered
-qScale = 5 #quality of output video
 
 def show_maze(pixelData, sizeX, sizeY):
     #create black image
@@ -40,7 +39,7 @@ class VideoBuilder:
         newFrame = self.currentFrame.resize((self.sizeX * videoScale, self.sizeY * videoScale))
 
         #create and open pipe to ffmpeg process
-        self.p = Popen(["ffmpeg", "-y", "-f", "image2pipe", "-vcodec", "png", "-r", str(fps), "-i", "-", "-vcodec", "libx264", "-qscale", str(qScale), "-r", str(fps), "output.mp4"], stdin = PIPE)
+        self.p = Popen(["ffmpeg", "-y", "-f", "image2pipe", "-vcodec", "png", "-r", str(fps), "-i", "-", "-vcodec", "libx264", "-qscale", "5", "-r", str(fps), "output.mp4"], stdin = PIPE)
 
         #save initial frame
         newFrame.save(self.p.stdin, "PNG")
