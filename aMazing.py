@@ -7,7 +7,7 @@ from PIL import Image
 import math
 
 #---Video Output Options---
-makeVid = True #generate output video
+makeVid = False #generate output video
 
 #---Image Input Options---
 descale = 1 #reduce input image size by this factor
@@ -26,11 +26,11 @@ grayscale = im.convert("L")
 
 # size of grid
 if(len(sys.argv) == 2):
-        gridWidth = sys.argv[1]
-        gridHeight = sys.argv[1]
+        gridWidth = int(sys.argv[1])
+        gridHeight = int(sys.argv[1])
 elif(len(sys.argv) == 3):
-        gridWidth = sys.argv[1]
-        gridHeight = sys.argv[2]
+        gridWidth = int(sys.argv[1])
+        gridHeight = int(sys.argv[2])
 else:
         gridWidth = int((width - 1) / 2)
         gridHeight = int((height - 1) / 2)
@@ -56,6 +56,7 @@ for i in range(0,gridWidth):
 treeNodes = set()
 treeEdges = set()
 openEdges = PriorityQueue()
+fromNode = dict()
 
 def getNeighbors(point):
     nodes = set()
@@ -102,6 +103,9 @@ while not openEdges.empty():
             # Add the new node to the tree
             treeNodes.add(endpointNode)
 
+            #Store previous node
+            fromNode[endpointNode] = originNode
+
             if makeVid:
                 #add video frames
                 #average origin and new node co-ords to find edge position
@@ -124,6 +128,15 @@ if makeVid:
     #add exit to movie
     vid.add_frame(gridWidth * 2, gridHeight * 2 - 1)
 
+#Find solution path
+path = []
+path.append((gridWidth - 1, gridHeight - 1))
+
+while path[-1] != (0, 0):
+    path.append(fromNode[path[-1]])
+
+path.reverse()
+
 #---Generate Pixel Data---
 
 #holds data to be written to bitmap
@@ -131,47 +144,66 @@ pixelData = []
 
 #add upper edge
 for i in range(0, gridWidth * 2 + 1):
-        pixelData.append(0)
+        pixelData.append((0, 0, 0))
 
 for j in range(0,gridHeight):
 
     #Left border
     if j == 0:
-        pixelData.append(1)
+        pixelData.append((255, 255, 255))
     else:
-        pixelData.append(0)
+        pixelData.append((0, 0, 0))
 
     #right edges
     for i in range(0,gridWidth):
 
         #add pixel for each node
-        pixelData.append(1)
+        pixelData.append((255, 255, 255))
 
         #add pixel for each right edge in treeEdges
         if j == gridHeight - 1 and i == gridWidth - 1:
-            pixelData.append(1)
+            #maze exit
+            pixelData.append((255, 255, 255))
         else:
             if frozenset({(i, j),(i+1,j)}) in treeEdges:
-                pixelData.append(1)
+                pixelData.append((255, 255, 255))
             else:
-                pixelData.append(0)
+                pixelData.append((0, 0, 0))
 
     # Left border
-    pixelData.append(0)
+    pixelData.append((0, 0, 0))
 
     #add pixel for each down edge in treeEdges
     for i in range(0, gridWidth):
 
         if frozenset({(i, j),(i,j+1)}) in treeEdges:
-            pixelData.append(1)
+            pixelData.append((255, 255, 255))
         else:
-            pixelData.append(0)
+            pixelData.append((0, 0, 0))
 
-        pixelData.append(0)
+        pixelData.append((0, 0, 0))
 
 #save and display maze image
-render.show_maze(pixelData, gridWidth * 2 + 1, gridHeight * 2 + 1)
+render.show_maze(pixelData, gridWidth * 2 + 1, gridHeight * 2 + 1, "maze.png")
+
+#Generate solution image
+pixelData[gridWidth * 2 + 1] = (255, 0, 0)
+
+for i in range(0, len(path) - 1):
+    #colour node
+    pixelData[(path[i][1] + 1) * (gridWidth * 2 + 1) * 2 - (gridWidth * 2 + 1) + (path[i][0] * 2 + 1)] = (255, 0, 0)
+
+    #colour edge
+    edgeCoord = ((path[i][0] + path[i + 1][0]) / 2, (path[i][1] + path[i + 1][1]) / 2)
+    pixelData[int((edgeCoord[1] + 1) * (gridWidth * 2 + 1) * 2 - (gridWidth * 2 + 1) + (edgeCoord[0] * 2 + 1))] = (255, 0, 0)
+
+pixelData[(path[-1][1] + 1) * (gridWidth * 2 + 1) * 2 - (gridWidth * 2 + 1) + (path[-1][0] * 2 + 1)] = (255, 0, 0)
+pixelData[(path[-1][1] + 1) * (gridWidth * 2 + 1) * 2 - (gridWidth * 2 + 1) + (path[-1][0] * 2 + 1) + 1] = (255, 0, 0)
+
+render.show_maze(pixelData, gridWidth * 2 + 1, gridHeight * 2 + 1, "solution.png")
 
 if makeVid:
     #close ffmpeg processs
     vid.release()
+
+print(path)

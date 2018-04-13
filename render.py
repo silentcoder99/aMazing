@@ -7,11 +7,11 @@ imageScale = 8 #scaling for output image
 #---Video Output Options---
 videoScale = 1 #scaling for individual frames
 fps = 120 #frame rate
-frameInterval = 4 #every nth frame to be rendered
+frameInterval = 8 #every nth frame to be rendered
 
-def show_maze(pixelData, sizeX, sizeY):
+def show_maze(pixelData, sizeX, sizeY, name):
     #create black image
-    im = Image.new("1", (sizeX, sizeY))
+    im = Image.new("RGB", (sizeX, sizeY))
 
     #create image from pixelData
     im.putdata(pixelData)
@@ -19,9 +19,8 @@ def show_maze(pixelData, sizeX, sizeY):
     #scale image
     im = im.resize((sizeX * imageScale, sizeY * imageScale))
 
-    #display and save image
-    im.show()
-    im.save("maze.png")
+    #save image
+    im.save(name)
 
 class VideoBuilder:
     def __init__(self, sizeX, sizeY):
@@ -35,7 +34,7 @@ class VideoBuilder:
             self.sizeY += 1
 
         #create initial frame
-        self.currentFrame = Image.new("1", (self.sizeX, self.sizeY))
+        self.currentFrame = Image.new("RGB", (self.sizeX, self.sizeY))
         newFrame = self.currentFrame.resize((self.sizeX * videoScale, self.sizeY * videoScale))
 
         #create and open pipe to ffmpeg process
@@ -46,7 +45,7 @@ class VideoBuilder:
 
     def add_frame(self, x, y):
         #add new pixel to current frame
-        self.currentFrame.putpixel((x, y), 1)
+        self.currentFrame.putpixel((x, y), (255, 255, 255))
 
         #for every n frames send current frame to ffmpeg
         self.frameCount += 1
